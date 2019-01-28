@@ -21,7 +21,7 @@ end
 
 * [ex_aws](https://hexdocs.pm/ex_aws)
 * [AWS CloudTrail API](https://docs.aws.amazon.com/awscloudtrail/latest/APIReference/Welcome.html)
-* [Go API for CodePipeline](https://github.com/aws/aws-sdk-go/blob/master/models/apis/cloudtrail/2013-11-01/api-2.json)
+* [Go API for CloudTrail](https://github.com/aws/aws-sdk-go/blob/master/models/apis/cloudtrail/2013-11-01/api-2.json)
 
 ## License
 
