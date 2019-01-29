@@ -110,6 +110,51 @@ defmodule ExAws.CloudTrail do
 
     A maximum of five trails can exist in a region, irrespective of the
     region in which they were created.
+
+  ## Parameters
+
+    * name (string) - Required. Specifies the name of the trail. The name must meet the
+    following requirements:
+
+      * Contains only ASCII letters (a-z, A-Z), numbers (0-9), periods (.),
+      underscores (_), or dashes (-)
+      * Start with a letter or number, and end with a letter or number
+      * Be between 3 and 128 characters
+      * Have no adjacent periods, underscores or dashes. Names like
+      my-_namespace and my--namespace are invalid.
+      * Not be in IP address format (for example, 192.168.5.4)
+
+   * s3_bucket_name (string) - Required. Specifies the name of the Amazon S3 bucket designated
+   for publishing log files. See [Amazon S3 Bucket Naming Requirements](https://amzn.to/2RkmbzH).
+
+   * cloud_watch_logs_log_group_arn (string) - Specifies a log group name using an Amazon Resource
+   Name (ARN), a unique identifier that represents the log group to which CloudTrail logs
+   will be delivered. Not required unless you also supply cloud_watch_logs_role_arn.
+
+   * cloud_watch_logs_role_arn (string) - Specifies the role for the CloudWatch Logs endpoint to
+   assume to write to a user's log group
+
+   * enable_log_file_validation (boolean) - Specifies whether log file integrity validation is enabled.
+   The default is false.
+
+   * include_global_service_events (boolean) - Specifies whether the trail is publishing events from
+   global services such as IAM to the log files
+
+   * is_multi_region_trail (boolean) - Specifies whether the trail is created in the current
+   region or in all regions. The default is false.
+
+   * is_organization_trail (boolean) - Specifies whether the trail is created for all accounts
+   in an organization in AWS Organizations, or only for the current AWS account. The default is
+   false, and cannot be true unless the call is made on behalf of an AWS account that is the
+   master account for an organization in AWS Organizations.
+
+   * kms_key_id (string) - Specifies the KMS key ID to use to encrypt the logs delivered by
+   CloudTrail. The value can be an alias name prefixed by "alias/", a fully specified ARN to
+   an alias, a fully specified ARN to a key, or a globally unique identifier.
+
+   * sns_topic_name (string) - Specifies the name of the Amazon SNS topic defined for notification
+   of log file delivery. The maximum length is 256 characters.
+
   """
   @spec create_trail(name :: binary, s3_bucket_name :: binary) :: ExAws.Operation.JSON.t()
   @spec create_trail(name :: binary, s3_bucket_name :: binary, opts :: create_trail_opts) ::
@@ -127,6 +172,12 @@ defmodule ExAws.CloudTrail do
     This operation must be called from the region in which the trail was
     created. delete_trail cannot be called on the shadow trails (replicated
     trails in other regions) of a trail that is enabled in all regions.
+
+  ## Parameters
+
+    * name (string) - Required. Specifies the name or the CloudTrail ARN of
+    the trail to be deleted. The format of a trail ARN is:
+    `arn:aws:cloudtrail:us-east-2:123456789012:trail/MyTrail`
   """
   @spec delete_trail(name :: binary) :: ExAws.Operation.JSON.t()
   def delete_trail(name) do
@@ -137,6 +188,19 @@ defmodule ExAws.CloudTrail do
   @doc """
     Retrieves settings for the trail associated with the current region for
     your account
+
+  ## Parameters
+
+    * include_shadow_trails (boolean) - Specifies whether to include shadow
+    trails in the response. A shadow trail is the replication in a region of
+    a trail that was created in a different region, or in the case of an
+    organization trail, the replication of an organization trail in member
+    accounts. If you do not include shadow trails, organization trails in a
+    member account and region replication trails will not be returned.
+    The default is true.
+
+    * trail_name_list (list of string) - Specifies a list of trail names,
+    trail ARNs, or both, of the trails to describe.
   """
   @spec describe_trails() :: ExAws.Operation.JSON.t()
   @spec describe_trails(opts :: describe_trails_opts) :: ExAws.Operation.JSON.t()
