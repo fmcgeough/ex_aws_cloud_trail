@@ -24,10 +24,12 @@ defmodule LookupEventsTest do
            ]
 
     assert op.data == %{
-             "LookupAttributes" => %{
-               "AttributeKey" => "EventSource",
-               "AttributeValue" => "iam.amazonaws.com"
-             }
+             "LookupAttributes" => [
+               %{
+                 "AttributeKey" => "EventSource",
+                 "AttributeValue" => "iam.amazonaws.com"
+               }
+             ]
            }
   end
 
@@ -43,10 +45,12 @@ defmodule LookupEventsTest do
            ]
 
     assert op.data == %{
-             "LookupAttributes" => %{
-               "AttributeKey" => "ReadOnly",
-               "AttributeValue" => "false"
-             }
+             "LookupAttributes" => [
+               %{
+                 "AttributeKey" => "ReadOnly",
+                 "AttributeValue" => "false"
+               }
+             ]
            }
   end
 end

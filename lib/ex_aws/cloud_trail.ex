@@ -248,9 +248,19 @@ defmodule ExAws.CloudTrail do
   @spec lookup_events() :: ExAws.Operation.JSON.t()
   @spec lookup_events(opts :: lookup_events_opts) :: ExAws.Operation.JSON.t()
   def lookup_events(opts \\ []) do
-    opts
-    |> camelize_keys(%{deep: true})
-    |> request(:lookup_events)
+    data =
+      case Keyword.get(opts, :lookup_attributes) do
+        nil ->
+          camelize_keys(opts)
+
+        val ->
+          opts
+          |> Keyword.delete(:lookup_attributes)
+          |> camelize_keys()
+          |> Map.merge(handle_lookup_attributes(val))
+      end
+
+    request(data, :lookup_events)
   end
 
   @doc """
@@ -366,5 +376,9 @@ defmodule ExAws.CloudTrail do
         ]
       }
     )
+  end
+
+  defp handle_lookup_attributes(val) do
+    %{"LookupAttributes" => [camelize_keys(val)]}
   end
 end
