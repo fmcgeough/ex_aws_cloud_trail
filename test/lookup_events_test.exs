@@ -15,7 +15,8 @@ defmodule LookupEventsTest do
   test "returns events in which the value of EventSource is iam.amazonaws.com" do
     op =
       ExAws.CloudTrail.lookup_events(
-        lookup_attributes: [attribute_key: "EventSource", attribute_value: "iam.amazonaws.com"]
+        lookup_attributes: [attribute_key: "EventSource", attribute_value: "iam.amazonaws.com"],
+        max_results: 50
       )
 
     assert op.headers == [
@@ -29,7 +30,8 @@ defmodule LookupEventsTest do
                  "AttributeKey" => "EventSource",
                  "AttributeValue" => "iam.amazonaws.com"
                }
-             ]
+             ],
+             "MaxResults" => 50
            }
   end
 
