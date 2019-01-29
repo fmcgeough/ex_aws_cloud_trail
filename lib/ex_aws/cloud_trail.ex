@@ -83,11 +83,22 @@ defmodule ExAws.CloudTrail do
     specified key and a value of null. You can tag a trail that applies
     to all regions only from the region in which the trail was
     created (that is, from its home region).
+
+  ## Parameters
+
+    * resource_id (string) - Required. Specifies the ARN of the trail to which one
+    or more tags will be added. The format of a trail ARN is:
+    `arn:aws:cloudtrail:us-east-2:123456789012:trail/MyTrail`
+
+    * tags_list (List) - Contains a list of CloudTrail tags, up to a limit of 50. Each
+    tag must have a key. The key must be must be no longer than 128 Unicode characters.
+    The key must be unique for the resource to which it applies. The tag value must
+    be no longer than 256 Unicode characters.
   """
   @spec add_tags(resource_id :: binary) :: ExAws.Operation.JSON.t()
   @spec add_tags(resource_id :: binary, tag_list :: [tag, ...] | []) :: ExAws.Operation.JSON.t()
   def add_tags(resource_id, tag_list \\ []) do
-    tag_data = tag_list |> camelize_keys()
+    tag_data = tag_list |> Enum.map(fn x -> camelize_keys(x) end)
 
     %{"ResourceId" => resource_id, "TagsList" => tag_data}
     |> request(:add_tags)
