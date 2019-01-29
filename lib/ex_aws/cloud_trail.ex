@@ -11,7 +11,11 @@ defmodule ExAws.CloudTrail do
     include_shadow_trails: "includeShadowTrails"
   }
 
-  @type tag :: {key :: atom, value :: binary}
+  @type tag :: %{
+          key: binary,
+          value: binary
+        }
+
   @type create_trail_opts :: [
           cloud_watch_logs_log_group_arn: binary,
           cloud_watch_logs_role_arn: binary,
@@ -69,7 +73,6 @@ defmodule ExAws.CloudTrail do
           include_management_events: boolean,
           read_write_type: binary
         ]
-  @type event_selectors :: [event_selector, ...]
 
   @doc """
     Adds one or more tags to a trail, up to a limit of 50
@@ -246,7 +249,7 @@ defmodule ExAws.CloudTrail do
   @spec lookup_events(opts :: lookup_events_opts) :: ExAws.Operation.JSON.t()
   def lookup_events(opts \\ []) do
     opts
-    |> camelize_keys()
+    |> camelize_keys(%{deep: true})
     |> request(:lookup_events)
   end
 
@@ -273,17 +276,17 @@ defmodule ExAws.CloudTrail do
     5. The GetConsoleOutput is a read-only event but it doesn't match your event selector.
     The trail doesn't log the event.
 
-    The put_event_selectors operation must be called from the region in which the trail
+    The `put_event_selectors/2` operation must be called from the region in which the trail
     was created; otherwise, an InvalidHomeRegionException is thrown.
 
     You can configure up to five event selectors for each trail. For more information,
     see [Logging Data and Management Events for Trails](https://amzn.to/2DGkWY9) and
     [Limits in AWS CloudTrail](https://amzn.to/2H39FVw) in the AWS CloudTrail User Guide.
   """
-  @spec put_event_selectors(trail_name :: binary, event_selectors :: event_selectors) ::
+  @spec put_event_selectors(trail_name :: binary, event_selectors :: [event_selector, ...]) ::
           ExAws.Operation.JSON.t()
-  def put_event_selectors(trail_name, event_selectors) do
-    event_selectors_data = camelize_keys(event_selectors)
+  def put_event_selectors(trail_name, event_selectors) when is_list(event_selectors) do
+    event_selectors_data = event_selectors |> Enum.map(fn x -> camelize_keys(x) end)
 
     %{"TrailName" => trail_name, "EventSelectors" => event_selectors_data}
     |> request(:put_event_selectors)
