@@ -1,4 +1,4 @@
-# AWS CloudTrail API (work in progress)
+# AWS CloudTrail API
 
 AWS CloudTrail Service module for [ex_aws](https://github.com/ex-aws/ex_aws).
 

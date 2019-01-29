@@ -64,10 +64,11 @@ defmodule ExAws.CloudTrail do
           start_time: binary
         ]
 
-  @type data_resource :: [
+  @type data_resource :: %{
           contents: binary,
           values: [binary, ...]
-        ]
+        }
+
   @type event_selector :: [
           data_resources: [data_resource, ...],
           include_management_events: boolean,
@@ -93,7 +94,8 @@ defmodule ExAws.CloudTrail do
     * tags_list (List) - Contains a list of CloudTrail tags, up to a limit of 50. Each
     tag must have a key. The key must be must be no longer than 128 Unicode characters.
     The key must be unique for the resource to which it applies. The tag value must
-    be no longer than 256 Unicode characters.
+    be no longer than 256 Unicode characters. Each element in the tags_list is supplied as:
+    `[%{key: "Key", value: "Value"}]`
   """
   @spec add_tags(resource_id :: binary) :: ExAws.Operation.JSON.t()
   @spec add_tags(resource_id :: binary, tag_list :: [tag, ...] | []) :: ExAws.Operation.JSON.t()
@@ -227,6 +229,20 @@ defmodule ExAws.CloudTrail do
     For more information, see
     [Logging Data and Management Events for Trails](https://amzn.to/2DGkWY9)
     in the AWS CloudTrail User Guide.
+
+  ## Parameters
+
+  * trail_name (string) - Required. Specifies the name of the trail or trail ARN.
+  If you specify a trail name, the string must meet the following requirements:
+
+    * Contain only ASCII letters (a-z, A-Z), numbers (0-9), periods (.), underscores (_), or dashes (-)
+    * Start with a letter or number, and end with a letter or number
+    * Be between 3 and 128 characters
+    * Have no adjacent periods, underscores or dashes. Names like my-_namespace and my--namespace are not valid.
+    * Not be in IP address format (for example, 192.168.5.4)
+
+    * If you specify a trail ARN, it must be in the format:
+    `arn:aws:cloudtrail:us-east-2:123456789012:trail/MyTrail`
   """
   @spec get_event_selectors(trail_name :: binary) :: ExAws.Operation.JSON.t()
   def get_event_selectors(trail_name) do
@@ -242,13 +258,14 @@ defmodule ExAws.CloudTrail do
     status from a single region. To return trail status from all regions, you must
     call the operation on each region.
 
-  ## Parameters:
+  ## Parameters
 
-    * Name - Specifies the name or the CloudTrail ARN of the trail for which you are
-    requesting status. To get the status of a shadow trail (a replication of the trail
-    in another region), you must specify its ARN. The format of a trail ARN is:
+    * Name (string) - Required. Specifies the name or the CloudTrail ARN of the trail
+    for which you are requesting status. To get the status of a shadow trail (a
+    replication of the trail in another region), you must specify its ARN.
+    The format of a trail ARN is:
 
-        arn:aws:cloudtrail:us-east-2:123456789012:trail/MyTrail
+        `arn:aws:cloudtrail:us-east-2:123456789012:trail/MyTrail`
   """
   @spec get_trail_status(name :: binary) :: ExAws.Operation.JSON.t()
   def get_trail_status(name) do
@@ -269,6 +286,19 @@ defmodule ExAws.CloudTrail do
     file is signed with a private key unique to its region. Therefore, when you
     validate a digest file from a particular region, you must look in the same
     region for its corresponding public key.
+
+  ## Parameters
+
+    * end_time - Optionally specifies, in UTC, the end of the time range to
+    look up public keys for CloudTrail digest files. If not specified, the
+    current time is used. Passed in milliseconds since epoch.
+
+    * next_token (string) - Reserved for future use
+
+    * start_time - Optionally specifies, in UTC, the start of the time range
+    to look up public keys for CloudTrail digest files. If not specified,
+    the current time is used, and the current public key is returned.
+    Passed in milliseconds since epoch.
   """
   @spec list_public_keys() :: ExAws.Operation.JSON.t()
   @spec list_public_keys(opts :: list_public_keys_opts) :: ExAws.Operation.JSON.t()
@@ -280,6 +310,13 @@ defmodule ExAws.CloudTrail do
 
   @doc """
     Lists the tags for the trail in the current region
+
+  ## Parameters
+
+    * resource_id_list (list) - Required. Specifies a list of trail ARNs whose tags
+    will be listed. The list has a limit of 20 ARNs.
+
+    * next_token (string) - Reserved for future use
   """
   @spec list_tags(resource_id_list :: [binary, ...]) :: ExAws.Operation.JSON.t()
   @spec list_tags(resource_id_list :: [binary, ...], opts :: paging_options) ::
@@ -319,6 +356,27 @@ defmodule ExAws.CloudTrail do
 
     Events that occurred during the selected time range will not be available for
     lookup if CloudTrail logging was not enabled when the events occurred.
+
+  ## Parameters
+
+    * end_time - Specifies that only events that occur before or at the specified
+    time are returned. If the specified end time is before the specified start time,
+    an error is returned.
+
+    * lookup_attributes - Contains a list of lookup attributes. Currently the list
+    can contain only one item.
+
+    * max_results (integer) - The number of events to return. 1-50. The default is 50.
+
+    * next_token (string) - The token to use to get the next page of results after a
+    previous API call. This token must be passed in with the same parameters that were
+    specified in the the original call. For example, if the original call specified an
+    AttributeKey of 'Username' with a value of 'root', the call with next_token should
+    include those same parameters.
+
+    * start_time - Specifies that only events that occur after or at the specified time
+    are returned. If the specified start time is after the specified end time, an error
+    is returned.
   """
   @spec lookup_events() :: ExAws.Operation.JSON.t()
   @spec lookup_events(opts :: lookup_events_opts) :: ExAws.Operation.JSON.t()
@@ -367,11 +425,34 @@ defmodule ExAws.CloudTrail do
     You can configure up to five event selectors for each trail. For more information,
     see [Logging Data and Management Events for Trails](https://amzn.to/2DGkWY9) and
     [Limits in AWS CloudTrail](https://amzn.to/2H39FVw) in the AWS CloudTrail User Guide.
+
+  ## Parameters
+
+    * trail_name (string) - Required. Specifies the name of the trail or trail ARN.
+
+    * event_selectors (list) - Specifies the settings for your event selectors.
+    You can configure up to five event selectors for a trail. Format is:
+
+          ```
+          selectors = [
+            [
+              data_resources: [
+                %{
+                  type: "AWS::Lambda::Function",
+                  values: [lambda_func1, lambda_func2]
+                }
+              ],
+              read_write_type: "All"
+            ]
+          ]
+          ```
+
   """
   @spec put_event_selectors(trail_name :: binary, event_selectors :: [event_selector, ...]) ::
           ExAws.Operation.JSON.t()
   def put_event_selectors(trail_name, event_selectors) when is_list(event_selectors) do
-    event_selectors_data = event_selectors |> Enum.map(fn x -> camelize_keys(x) end)
+    event_selectors_data =
+      event_selectors |> Enum.map(fn x -> camelize_keys(x, %{deep: true}) end)
 
     %{"TrailName" => trail_name, "EventSelectors" => event_selectors_data}
     |> request(:put_event_selectors)
@@ -379,6 +460,13 @@ defmodule ExAws.CloudTrail do
 
   @doc """
     Removes the specified tags from a trail
+
+  ## Parameters
+
+    * resource_id (string) - Required. Specifies the ARN of the trail from which
+    tags should be removed.
+
+    * tags_list (list) - Specifies a list of tags to be removed. See `list_tags/2`
   """
   @spec remove_tags(resource_id :: binary) :: ExAws.Operation.JSON.t()
   @spec remove_tags(resource_id :: binary, []) :: ExAws.Operation.JSON.t()
@@ -397,6 +485,11 @@ defmodule ExAws.CloudTrail do
     the region in which the trail was created. This operation cannot be called on
     the shadow trails (replicated trails in other regions) of a trail that is
     enabled in all regions
+
+  ## Parameters
+
+    * name (string) - Required. Specifies the name or the CloudTrail ARN of the
+    trail for which CloudTrail will log AWS API calls
   """
   @spec start_logging(name :: binary) :: ExAws.Operation.JSON.t()
   def start_logging(name) do
@@ -413,6 +506,11 @@ defmodule ExAws.CloudTrail do
     trail was created, or an InvalidHomeRegionException will occur. This operation cannot
     be called on the shadow trails (replicated trails in other regions) of a trail
     enabled in all regions.
+
+  ## Parameters
+
+    * name (string) - Required. Specifies the name or the CloudTrail ARN of the
+    trail for which CloudTrail will stop logging AWS API calls
   """
   @spec stop_logging(name :: binary) :: ExAws.Operation.JSON.t()
   def stop_logging(name) do
@@ -428,6 +526,45 @@ defmodule ExAws.CloudTrail do
     been a target for CloudTrail log files, an IAM policy exists for the bucket. update_trail
     must be called from the region in which the trail was created; otherwise, an
     InvalidHomeRegionException is thrown.
+
+  ## Parameters
+
+    * name (string) - Required. Specifies the name of the trail or trail ARN (see `create_trail/2`)
+
+    * cloud_watch_logs_log_group_arn (string) - Specifies a log group name using an Amazon Resource
+    Name (ARN), a unique identifier that represents the log group to which CloudTrail logs
+    will be delivered. Not required unless you also supply cloud_watch_logs_role_arn.
+
+    * cloud_watch_logs_role_arn (string) - Specifies the role for the CloudWatch Logs endpoint to
+    assume to write to a user's log group
+
+    * enable_log_file_validation (boolean) - Specifies whether log file integrity validation is enabled.
+    The default is false.
+
+    * include_global_service_events (boolean) - Specifies whether the trail is publishing events from
+    global services such as IAM to the log files
+
+    * is_multi_region_trail (boolean) - Specifies whether the trail is created in the current
+    region or in all regions. The default is false.
+
+    * is_organization_trail (boolean) - Specifies whether the trail is created for all accounts
+    in an organization in AWS Organizations, or only for the current AWS account. The default is
+    false, and cannot be true unless the call is made on behalf of an AWS account that is the
+    master account for an organization in AWS Organizations.
+
+    * kms_key_id (string) - Specifies the KMS key ID to use to encrypt the logs delivered by
+    CloudTrail. The value can be an alias name prefixed by "alias/", a fully specified ARN to
+    an alias, a fully specified ARN to a key, or a globally unique identifier.
+
+    * sns_topic_name (string) - Specifies the name of the Amazon SNS topic defined for notification
+    of log file delivery. The maximum length is 256 characters.
+
+    * s3_bucket_name (string) - Specifies the name of the Amazon S3 bucket designated
+    for publishing log files. See [Amazon S3 Bucket Naming Requirements](https://amzn.to/2RkmbzH).
+
+    * s3_key_prefix (string) - Specifies the Amazon S3 key prefix that comes after the name
+    of the bucket you have designated for log file delivery. For more information, see
+    [Finding Your CloudTrail Log Files](https://amzn.to/2TjVdd9). The maximum length is 200 characters.
   """
   @spec update_trail(name :: binary) :: ExAws.Operation.JSON.t()
   @spec update_trail(name :: binary, opts :: update_trail_opts) :: ExAws.Operation.JSON.t()
