@@ -1,3 +1,7 @@
+v2.0.2
+
+  * Fix: Change typespec for lookup_events and handle list of lists properly
+
 v2.0.1
 
   * Enhancement: Added support for listing all lookup events with ListLookupEvents module.

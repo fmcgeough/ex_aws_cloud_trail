@@ -55,4 +55,29 @@ defmodule LookupEventsTest do
              ]
            }
   end
+
+  test "formatting handles a list of lists in lookup_attributes" do
+    # try and pass multiple lookup attributes. should ignore all but first
+    op =
+      ExAws.CloudTrail.lookup_events(
+        lookup_attributes: [
+          [attribute_key: "ReadOnly", attribute_value: "false"],
+          [attribute_key: "AnotherKey", attribute_value: "Another Value"]
+        ]
+      )
+
+    assert op.headers == [
+             {"x-amz-target", "CloudTrail_20131101.LookupEvents"},
+             {"content-type", "application/x-amz-json-1.1"}
+           ]
+
+    assert op.data == %{
+             "LookupAttributes" => [
+               %{
+                 "AttributeKey" => "ReadOnly",
+                 "AttributeValue" => "false"
+               }
+             ]
+           }
+  end
 end

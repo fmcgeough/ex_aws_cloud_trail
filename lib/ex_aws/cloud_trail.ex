@@ -58,7 +58,7 @@ defmodule ExAws.CloudTrail do
   @type lookup_attribute :: [attribute_key: binary, attribute_value: binary]
   @type lookup_events_opts :: [
           end_time: binary,
-          lookup_attributes: [lookup_attribute, ...],
+          lookup_attributes: [lookup_attribute, ...] | lookup_attribute,
           max_results: integer,
           next_token: binary,
           start_time: binary
@@ -590,7 +590,16 @@ defmodule ExAws.CloudTrail do
     )
   end
 
-  defp handle_lookup_attributes(val) do
+  # AWS only accepts one lookup attribute on lookup_events
+  defp handle_lookup_attributes(input_val) do
+    [h | _t] = input_val
+
+    val =
+      case is_list(h) do
+        true -> Enum.at(input_val, 0)
+        false -> input_val
+      end
+
     %{"LookupAttributes" => [camelize_keys(val)]}
   end
 end
