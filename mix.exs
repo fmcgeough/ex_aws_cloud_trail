@@ -39,7 +39,7 @@ defmodule ExAwsCloudTrail.MixProject do
       {:ex_doc, "~> 0.34.2", only: [:dev, :test]},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 2.5"},
-      {:dialyxir, "~> 1.4.3", only: [:dev]}
+      {:dialyxir, "~> 1.4.3", only: [:dev, :test]}
     ]
   end
 
