@@ -1,7 +1,8 @@
 defmodule ExAwsCloudTrail.MixProject do
   use Mix.Project
 
-  @version "2.0.2"
+  @version "2.0.3"
+  @source_url "https://github.com/fmcgeough/ex_aws_cloud_trail"
 
   def project do
     [
@@ -11,14 +12,12 @@ defmodule ExAwsCloudTrail.MixProject do
       start_permanent: Mix.env() == :prod,
       package: package(),
       deps: deps(),
+      name: "ex_aws_cloud_trail",
+      description: "AWS CloudTrail API",
       elixirc_paths: elixirc_paths(Mix.env()),
-      source_url: "https://github.com/fmcgeough/ex_aws_cloud_trail",
-      homepage_url: "https://github.com/fmcgeough/ex_aws_cloud_trail",
-      docs: [
-        main: "readme",
-        extras: ["README.md"],
-        source_ref: "v#{@version}"
-      ]
+      source_url: @source_url,
+      homepage_url: @source_url,
+      docs: docs()
     ]
   end
 
@@ -37,18 +36,28 @@ defmodule ExAwsCloudTrail.MixProject do
     [
       {:hackney, "1.6.3 or 1.6.5 or 1.7.1 or 1.8.6 or ~> 1.9", only: [:dev, :test]},
       {:poison, ">= 1.2.0", optional: true},
-      {:ex_doc, "~> 0.19.2", only: [:dev, :test]},
-      {:ex_aws, "~> 2.0"},
-      {:dialyxir, "~> 0.5", only: [:dev]}
+      {:ex_doc, "~> 0.34.2", only: [:dev, :test]},
+      {:ex_aws, "~> 2.5"},
+      {:dialyxir, "~> 1.4.3", only: [:dev]}
+    ]
+  end
+
+  defp docs do
+    [
+      name: "ExAws.CloudTrail",
+      source_ref: "v#{@version}",
+      canonical: "http://hexdocs.pm/ex_aws_cloud_trail",
+      source_url: @source_url,
+      main: "readme",
+      extras: ["README.md", "CHANGELOG.md": [title: "Changelog"], LICENSE: [title: "License"]]
     ]
   end
 
   defp package do
     [
-      description: "AWS CloudTrail service for ex_aws",
       maintainers: ["Frank McGeough"],
       licenses: ["MIT"],
-      links: %{github: "https://github.com/fmcgeough/ex_aws_cloud_trail"}
+      links: %{"GitHub" => @source_url}
     ]
   end
 end
