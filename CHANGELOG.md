@@ -1,3 +1,7 @@
+v2.0.4
+
+* Fix: tagging
+
 v2.0.3
 
 * Fix: use Logger.warning instead of Logger.warn
