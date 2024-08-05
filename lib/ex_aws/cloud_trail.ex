@@ -4,6 +4,8 @@ defmodule ExAws.CloudTrail do
   """
   import ExAws.Utils, only: [camelize_keys: 1, camelize_keys: 2]
 
+  alias ExAws.Operation.JSON, as: ExAwsOperationJSON
+
   @version "20131101"
   @namespace "CloudTrail"
   @key_spec %{
@@ -578,7 +580,7 @@ defmodule ExAws.CloudTrail do
   defp request(data, action) do
     operation = action |> Atom.to_string() |> Macro.camelize()
 
-    ExAws.Operation.JSON.new(
+    ExAwsOperationJSON.new(
       :cloudtrail,
       %{
         data: data,
