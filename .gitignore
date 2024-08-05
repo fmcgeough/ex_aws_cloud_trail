@@ -23,3 +23,5 @@ erl_crash.dump
 ex_aws_cloud_trail-*.tar
 
 .elixir_ls/
+
+.DS_Store

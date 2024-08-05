@@ -3,6 +3,7 @@ v2.0.3
 * Fix: use Logger.warning instead of Logger.warn
 * Enhancement: Bring dependencies up to date
 * Enhancement: Show CHANGELOG and LICENSE in generated docs
+* Enhancement: Use Github Actions to compile/test code for various Elixir versions
 
 v2.0.2
 
