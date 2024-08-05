@@ -1,3 +1,9 @@
+v2.0.3
+
+* Fix: use Logger.warning instead of Logger.warn
+* Enhancement: Bring dependencies up to date
+* Enhancement: Show CHANGELOG and LICENSE in generated docs
+
 v2.0.2
 
   * Fix: Change typespec for lookup_events and handle list of lists properly

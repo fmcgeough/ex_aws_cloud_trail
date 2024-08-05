@@ -54,7 +54,7 @@ defmodule ExAws.CloudTrail.ListLookupEvents do
         {:ok, data}
 
       result ->
-        Logger.warn(inspect(result))
+        Logger.warning(inspect(result))
         {:error, %{"Events" => []}}
     end
   end
